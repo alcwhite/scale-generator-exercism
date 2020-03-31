@@ -80,8 +80,7 @@ defmodule ScaleGenerator do
 
   @spec scale_by_name(tonic :: String.t(), name :: String.t()) :: list(String.t())
   def scale_by_name(tonic, name) do
-    chromatic = find_chromatic_scale(tonic)
     pattern = @scale_patterns[String.downcase(name)]
-    add_note({[upcase_tonic(tonic)], pattern, chromatic, 1, String.length(pattern)})
+    scale(tonic, pattern)
   end
 end
