@@ -36,8 +36,8 @@ defmodule ScaleGenerator do
   @spec split_chromatic(scale :: list(String.t()), half :: atom, index:: pos_integer) :: list(String.t())
   def split_chromatic(scale, half, index) do
     case half do
-      :less -> Enum.reject(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) < index end)
-      :greater -> Enum.reject(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) > index end)
+      :less -> Enum.slice(scale, index..Enum.count(scale))
+      :greater -> Enum.slice(scale, 0..index)
     end
   end
   @spec concat_chromatic(list(String.t()), String.t()) :: list(String.t())
