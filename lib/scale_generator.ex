@@ -1,15 +1,5 @@
 defmodule ScaleGenerator do
  
-  @spec step(scale :: list(String.t()), tonic :: String.t(), step :: String.t()) :: list(String.t())
-  def step(scale, tonic, step) do
-    index = Enum.find_index(scale, fn x -> x === tonic end)
-    case step do
-      "m" -> Enum.find(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) === index + 1 end)
-      "M" -> Enum.find(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) === index + 2 end)
-      "A" -> Enum.find(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) === index + 3 end)
-    end
-  end
-
   @spec chromatic_sharp() :: list(String.t())
   def chromatic_sharp() do ~w(C C# D D# E F F# G G# A A# B) end
   @spec chromatic_flat() :: list(String.t())
@@ -23,6 +13,16 @@ defmodule ScaleGenerator do
       String.upcase(tonic) 
     else
       String.upcase(String.at(tonic, 0)) <> String.at(tonic, 1)
+    end
+  end
+
+  @spec step(scale :: list(String.t()), tonic :: String.t(), step :: String.t()) :: list(String.t())
+  def step(scale, tonic, step) do
+    index = Enum.find_index(scale, fn x -> x === tonic end)
+    case step do
+      "m" -> Enum.find(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) === index + 1 end)
+      "M" -> Enum.find(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) === index + 2 end)
+      "A" -> Enum.find(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) === index + 3 end)
     end
   end
 
