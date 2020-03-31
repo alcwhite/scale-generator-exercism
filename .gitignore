@@ -22,3 +22,5 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 scale_generator-*.tar
 
+.elixir_ls
+

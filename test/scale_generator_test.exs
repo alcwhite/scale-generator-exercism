@@ -271,4 +271,12 @@ defmodule ScaleGeneratorTest do
       assert ScaleGenerator.scale("G", @enigmatic_scale_pattern) == ~w(G G# B C# D# F F# G)
     end
   end
+  describe "generate scale from tonic and name" do
+    test "G Enigmatic scale" do
+      assert ScaleGenerator.scale_by_name("G", "enigmatic") == ~w(G G# B C# D# F F# G)
+    end
+    test "A Pentatonic scale" do
+      assert ScaleGenerator.scale_by_name("A", "Pentatonic") == ~w(A B C# E F# A)
+    end
+  end
 end

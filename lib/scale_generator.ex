@@ -1,16 +1,28 @@
 defmodule ScaleGenerator do
- 
-  @spec chromatic_sharp() :: list(String.t())
-  def chromatic_sharp() do ~w(C C# D D# E F F# G G# A A# B) end
-  @spec chromatic_flat() :: list(String.t())
-  def chromatic_flat() do ~w(C Db D Eb E F Gb G Ab A Bb B) end
-  @spec flat_scales() :: list(String.t())
-  def flat_scales() do ~w(F Bb Eb Ab Db Gb d g c f bb eb) end
+
+  @chromatic_sharp ~w(C C# D D# E F F# G G# A A# B)
+  @chromatic_flat ~w(C Db D Eb E F Gb G Ab A Bb B)
+  @flat_scales ~w(F Bb Eb Ab Db Gb d g c f bb eb)
+  @step_names %{"m" => 1, "M" => 2, "A" => 3}
+  @scale_patterns %{
+    "major" => "MMmMMMm",
+    "minor" => "MmMMmMM",
+    "dorian" => "MmMMMmM",
+    "mixolydian" => "MMmMMmM",
+    "lydian" => "MMMmMMm",
+    "phrygian" => "mMMMmMM",
+    "locrian" => "mMMmMMM",
+    "harmonic minor" => "MmMMmAm",
+    "melodic minor" => "MmMMMMm",
+    "octatonic" => "MmMmMmMm",
+    "hexatonic" => "MMMMMM",
+    "pentatonic" => "MMAMA",
+    "enigmatic" => "mAMMMmm"}
 
   @spec upcase_tonic(String.t()) :: String.t()
   def upcase_tonic(tonic) do
-    if String.length(tonic) === 1 do 
-      String.upcase(tonic) 
+    if String.length(tonic) === 1 do
+      String.upcase(tonic)
     else
       String.upcase(String.at(tonic, 0)) <> String.at(tonic, 1)
     end
@@ -18,44 +30,37 @@ defmodule ScaleGenerator do
 
   @spec step(scale :: list(String.t()), tonic :: String.t(), step :: String.t()) :: list(String.t())
   def step(scale, tonic, step) do
-    index = Enum.find_index(scale, fn x -> x === tonic end)
-    case step do
-      "m" -> Enum.find(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) === index + 1 end)
-      "M" -> Enum.find(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) === index + 2 end)
-      "A" -> Enum.find(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) === index + 3 end)
-    end
+    index = Enum.find_index(scale, fn x -> x === upcase_tonic(tonic) end)
+    Enum.at(scale, index + @step_names[step])
   end
-
-  @spec split_chromatic(list(String.t()), atom, pos_integer) :: list(String.t())
+  @spec split_chromatic(scale :: list(String.t()), half :: atom, index:: pos_integer) :: list(String.t())
   def split_chromatic(scale, half, index) do
     case half do
-      :less -> fn x -> Enum.find_index(scale, fn y -> y === x end) < index end
-      :greater -> fn x -> Enum.find_index(scale, fn y -> y === x end) > index end
+      :less -> Enum.reject(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) < index end)
+      :greater -> Enum.reject(scale, fn x -> Enum.find_index(scale, fn y -> y === x end) > index end)
     end
   end
   @spec concat_chromatic(list(String.t()), String.t()) :: list(String.t())
   def concat_chromatic(scale, tonic) do
-    tonic = upcase_tonic(tonic)
-    index = Enum.find_index(scale, fn x -> x === tonic end)
-    Enum.reject(scale, split_chromatic(scale, :less, index)) ++ Enum.reject(scale, split_chromatic(scale, :greater, index))
+    index = Enum.find_index(scale, fn x -> x === upcase_tonic(tonic) end)
+    split_chromatic(scale, :less, index) ++ split_chromatic(scale, :greater, index)
   end
-
-  @spec chromatic_scale(tonic :: String.t()) :: list(String.t())
-  def chromatic_scale(tonic \\ "C") do
-    concat_chromatic(chromatic_sharp(), tonic)
-  end
-  @spec flat_chromatic_scale(tonic :: String.t()) :: list(String.t())
-  def flat_chromatic_scale(tonic \\ "C") do
-    concat_chromatic(chromatic_flat(), tonic)
-  end
-  
   @spec find_chromatic_scale(tonic :: String.t()) :: list(String.t())
   def find_chromatic_scale(tonic) do
-    if Enum.member?(flat_scales(), tonic) do
+    if Enum.member?(@flat_scales, tonic) do
       flat_chromatic_scale(tonic)
     else
       chromatic_scale(tonic)
     end
+  end
+
+  @spec chromatic_scale(tonic :: String.t()) :: list(String.t())
+  def chromatic_scale(tonic \\ "C") do
+    concat_chromatic(@chromatic_sharp, tonic)
+  end
+  @spec flat_chromatic_scale(tonic :: String.t()) :: list(String.t())
+  def flat_chromatic_scale(tonic \\ "C") do
+    concat_chromatic(@chromatic_flat, tonic)
   end
 
   @spec add_note({list(String.t()), String.t(), list(String.t()), pos_integer, pos_integer}) :: any
@@ -70,6 +75,13 @@ defmodule ScaleGenerator do
   @spec scale(tonic :: String.t(), pattern :: String.t()) :: list(String.t())
   def scale(tonic, pattern) do
     chromatic = find_chromatic_scale(tonic)
+    add_note({[upcase_tonic(tonic)], pattern, chromatic, 1, String.length(pattern)})
+  end
+
+  @spec scale_by_name(tonic :: String.t(), name :: String.t()) :: list(String.t())
+  def scale_by_name(tonic, name) do
+    chromatic = find_chromatic_scale(tonic)
+    pattern = @scale_patterns[String.downcase(name)]
     add_note({[upcase_tonic(tonic)], pattern, chromatic, 1, String.length(pattern)})
   end
 end
