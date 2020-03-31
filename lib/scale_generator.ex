@@ -33,17 +33,10 @@ defmodule ScaleGenerator do
     index = Enum.find_index(scale, fn x -> x === upcase_tonic(tonic) end)
     Enum.at(scale, index + @step_names[step])
   end
-  @spec split_chromatic(scale :: list(String.t()), half :: atom, index:: pos_integer) :: list(String.t())
-  def split_chromatic(scale, half, index) do
-    case half do
-      :less -> Enum.slice(scale, index..Enum.count(scale))
-      :greater -> Enum.slice(scale, 0..index)
-    end
-  end
   @spec concat_chromatic(list(String.t()), String.t()) :: list(String.t())
   def concat_chromatic(scale, tonic) do
     index = Enum.find_index(scale, fn x -> x === upcase_tonic(tonic) end)
-    split_chromatic(scale, :less, index) ++ split_chromatic(scale, :greater, index)
+    Enum.slice(scale, index..Enum.count(scale)) ++ Enum.slice(scale, 0..index)
   end
   @spec find_chromatic_scale(tonic :: String.t()) :: list(String.t())
   def find_chromatic_scale(tonic) do
