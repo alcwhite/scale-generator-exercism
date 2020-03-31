@@ -33,8 +33,8 @@ defmodule ScaleGenerator do
     index = Enum.find_index(scale, fn x -> x === upcase_tonic(tonic) end)
     Enum.at(scale, index + @step_names[step])
   end
-  @spec concat_chromatic(list(String.t()), String.t()) :: list(String.t())
-  def concat_chromatic(scale, tonic) do
+  @spec form_chromatic(list(String.t()), String.t()) :: list(String.t())
+  def form_chromatic(scale, tonic) do
     index = Enum.find_index(scale, fn x -> x === upcase_tonic(tonic) end)
     Enum.slice(scale, index..Enum.count(scale)) ++ Enum.slice(scale, 0..index)
   end
@@ -49,11 +49,11 @@ defmodule ScaleGenerator do
 
   @spec chromatic_scale(tonic :: String.t()) :: list(String.t())
   def chromatic_scale(tonic \\ "C") do
-    concat_chromatic(@chromatic_sharp, tonic)
+    form_chromatic(@chromatic_sharp, tonic)
   end
   @spec flat_chromatic_scale(tonic :: String.t()) :: list(String.t())
   def flat_chromatic_scale(tonic \\ "C") do
-    concat_chromatic(@chromatic_flat, tonic)
+    form_chromatic(@chromatic_flat, tonic)
   end
 
   @spec add_note({list(String.t()), String.t(), list(String.t()), pos_integer, pos_integer}) :: any
